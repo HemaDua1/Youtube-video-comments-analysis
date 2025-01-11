@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify, send_from_directory
 import googleapiclient.discovery
+from flask_cors import CORS 
 import pandas as pd
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import nltk
@@ -12,11 +13,15 @@ import googleapiclient.discovery
 import pandas as pd
 from dotenv import load_dotenv
 import os 
-load_dotenv()
 
+
+load_dotenv()
 nltk.download('vader_lexicon')
 
 app = Flask(__name__)
+
+# Enable CORS for all routes
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 api_service_name = "youtube"
 api_version = "v3"
@@ -56,10 +61,15 @@ def extract_video_id(video_url):
 @app.route('/analyze', methods=['POST'])
 def analyze_comments():
     """Analyze YouTube comments for sentiment."""
+     # Handle preflight request
+    if request.method == 'OPTIONS':
+        return '', 204
     try:
         data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No JSON data received'}), 400
+            
         video_url = data.get('videoUrl')
-        
         if not video_url:
             return jsonify({'error': 'Video URL is required'}), 400
         
@@ -67,22 +77,20 @@ def analyze_comments():
         if not video_id:
             return jsonify({'error': 'Invalid YouTube URL'}), 400
 
-       
         youtube = googleapiclient.discovery.build(
             API_SERVICE_NAME, 
             API_VERSION, 
             developerKey=DEVELOPER_KEY
         )
 
-      
         comments = []
         next_page_token = None
         
-        while len(comments) <1000: 
+        while len(comments) < 1000:
             request_params = {
                 'part': 'snippet',
                 'videoId': video_id,
-                'maxResults':1000,
+                'maxResults': 100,  # Changed to 100 for better pagination
                 'textFormat': 'plainText'
             }
             
@@ -108,7 +116,8 @@ def analyze_comments():
                 'positive': 0,
                 'neutral': 0,
                 'negative': 0,
-                'error': 'No comments found for this video'
+                'total_comments': 0,
+                'message': 'No comments found for this video'
             }), 200
 
         # Perform sentiment analysis
@@ -135,4 +144,4 @@ def analyze_comments():
         return jsonify({'error': 'Internal server error'}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()

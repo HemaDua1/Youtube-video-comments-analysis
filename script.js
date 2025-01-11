@@ -2,7 +2,12 @@ let chart = null;
 
 async function analyzeSentiment() {
     const videoUrl = document.getElementById('videoUrl').value;
+    console.log('Analyzing sentiment for:', videoUrl);
     
+    const apiUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        ? 'http://127.0.0.1:5000'  // Development API URL
+        : 'https://youtube-video-comments-analysis-t5sv.vercel.app'; // Production API URL
+
     // Validate input
     if (!videoUrl) {
         alert('Please paint your canvas with a YouTube URL');
@@ -15,9 +20,15 @@ async function analyzeSentiment() {
     document.getElementById('results').classList.remove('show-results');
     
     try {
-        const response = await axios.post('/analyze', {
-            videoUrl: videoUrl
-        });
+        const response = await axios.post(`${apiUrl}/analyze`, 
+            { videoUrl },
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                withCredentials: false  // Important for CORS
+            }
+        );
         
         const data = response.data;
         
@@ -54,7 +65,7 @@ function updateResults(data) {
 
 function animateNumber(elementId, final, duration = 1000) {
     const element = document.getElementById(elementId);
-    const start = parseInt(element.textContent);
+    const start = parseInt(element.textContent) || 0;  // Added fallback to 0
     const range = final - start;
     const startTime = performance.now();
     
@@ -117,4 +128,3 @@ function updateChart(data) {
         }
     });
 }
-
