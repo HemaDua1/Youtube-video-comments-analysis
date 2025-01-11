@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentiment Canvas</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+</head>
+<body>
+    <div class="artistic-container">
+        <div class="paint-splash"></div>
+        <div class="content-wrapper">
+            <h1>Sentiment Canvas</h1>
+            
+            <div class="input-container">
+                <input type="text" class="artistic-input" id="videoUrl" placeholder="Paint with your YouTube URL..." />
+            </div>
+            
+            <button class="artistic-button" onclick="analyzeSentiment()">Create Sentiment Art</button>
+            
+            <div id="loading">
+                <div class="artistic-spinner"></div>
+                <p>Creating your sentiment masterpiece...</p>
+            </div>
+            
+            <div id="results" style="display: none;">
+                <div class="sentiment-gallery">
+                    <div class="sentiment-frame">
+                        <div class="sentiment-count" id="positiveCount">0</div>
+                        <div class="sentiment-label">Positive Strokes</div>
+                    </div>
+                    <div class="sentiment-frame">
+                        <div class="sentiment-count" id="neutralCount">0</div>
+                        <div class="sentiment-label">Neutral Tones</div>
+                    </div>
+                    <div class="sentiment-frame">
+                        <div class="sentiment-count" id="negativeCount">0</div>
+                        <div class="sentiment-label">Dark Shades</div>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="sentimentChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
+
